@@ -2,6 +2,7 @@
 import urllib2
 import urllib
 import re
+import datetime
 
 class Article:
     def __init__(self, rank, board_link, board, article_link, title, author_link, author):
@@ -20,7 +21,7 @@ class Lily_Top10_Spider:
         self.headers = {'User-Agent' : self.user_agent}
         
 
-    # 获取十大信息，添加到列表中并返回列表
+    # 禄帽脠隆脢庐麓贸脨脜脧垄拢卢脤铆录脫碌陆脕脨卤铆脰脨虏垄路碌禄脴脕脨卤铆
     def get_top10article(self):
         top10_url = 'http://bbs.nju.edu.cn/bbstop10'
         bbs_url = 'http://bbs.nju.edu.cn/'
@@ -40,12 +41,14 @@ class Lily_Top10_Spider:
             self.top10.append(article)
             #print info
             
-
+        '''
         for a in self.top10:
             print a.title, a.author, a.board, a.article_link
+        print 'len(self.top10): ', len(self.top10)
+        '''
 
     def get_article(self, url):
-        # url + '&start=-1' 显示本主题全部帖子
+        # url + '&start=-1'
         all_article_url = url + '&start=-1'
         req = urllib2.Request(all_article_url, headers = self.headers)
         response = urllib2.urlopen(req)
@@ -58,14 +61,16 @@ class Lily_Top10_Spider:
         pattern = re.compile(pattern_str, re.S)
         all_replies_content = pattern.findall(article_content)
 
-        f = open('all_replies_content.txt', 'w')
+        #f = open('all_replies_content.txt', 'w')
         #print all_replies
 
         result_content = []
         for reply in all_replies_content:
-            f.write(reply)
+        #    f.write(reply)
             result_content.append(reply)
             #print reply
+
+        #f.close()
         return result_content
         #return self.top10
         
@@ -73,9 +78,29 @@ class Lily_Top10_Spider:
 ls = Lily_Top10_Spider()
 ls.get_top10article()
 
-print '#1 article content:'
-article_content = ls.get_article(ls.top10[9].article_link)
+
+for topic_info in ls.top10:
+    print topic_info.rank, topic_info.title, topic_info.author, topic_info.article_link
+
+
+top10_filename = str(datetime.date.today()) + '+top10+articles.txt'
+f = open(top10_filename, 'w')
+f.write('top 10 topics:\n')
+#f.write('--------------鍗佸ぇ鐑棬璇濋--------------')
+
+for topic_info in ls.top10:
+    f.write(topic_info.rank + ':\n')
+    article_content = ls.get_article(topic_info.article_link)
+    
+    for ac in article_content:
+        f.write(ac)
+
+f.close() 
+
+'''
+print '#10 article content:'
+article_content = ls.get_article('http://bbs.nju.edu.cn/bbstcon?board=AutoSpeed&file=M.1413279187.A')
 for s in article_content:
     print s
 print 'print end.'
-            
+'''
